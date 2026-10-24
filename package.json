@@ -1,0 +1,13 @@
+{
+  "name": "fatosaovivo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Placar ao vivo das checagens do checagemaovivo.org (Fato, Fake, Não é bem assim)",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
