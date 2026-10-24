@@ -1,8 +1,8 @@
 # Fatos ao vivo
 
-Placar ao vivo das checagens do [checagemaovivo.org](https://www.checagemaovivo.org): quantidade e porcentagem de **Fato**, **Fake** e **Não é bem assim**, no total e por candidato. Atualiza a cada 10 segundos.
+Placar ao vivo das checagens do [checagemaovivo.org](https://www.checagemaovivo.org): a lista das falas checadas (Tudo e uma aba por candidato, a última em destaque) e, ao lado, quantidade e porcentagem de **Fato**, **Fake** e **Não é bem assim**, no total e por candidato. Atualiza a cada 10 segundos.
 
-Não espelha o site: o servidor busca só o placar público da sala (`/api/stream/public/rooms/<sala>/manifest.json`) com cache de 10 s compartilhado entre todos os visitantes, e a página dá o crédito com link para o original.
+Não espelha o site: o servidor busca só os dados públicos da sala (`manifest.json` com cache de 10 s compartilhado entre os visitantes; os blocos de checagens, que têm o hash no nome, uma vez só) e a página dá o crédito com link para o original. Da checagem só sai frase, falante, veredito, horário e tipo de revisão — explicação, relatório e fontes ficam no site original.
 
 ## Rodar
 
@@ -26,7 +26,8 @@ New Project → Deploy from GitHub repo → `fatosaovivo`. O `railway.json` defi
 ## Rotas
 
 - `/` — a página do placar (`?sala=<id>` fixa uma sala; sem isso, a que está ao vivo ou a mais recente)
-- `/api/placar` — o placar em JSON
+- `/api/placar` — o placar em JSON (inclui `version`: a lista só é rebaixada quando ela muda)
+- `/api/checagens` — as checagens publicadas, da mais nova para a mais antiga
 - `/health` — healthcheck
 
 ## Limites

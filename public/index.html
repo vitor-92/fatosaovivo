@@ -8,128 +8,265 @@
 <style>
   :root {
     --bg: #f6f7f9; --card: #ffffff; --text: #111827; --muted: #6b7280; --line: #e5e7eb; --track: #eef0f3;
-    --fato: #16a34a; --fake: #dc2626; --parcial: #d97706; --live: #ef4444;
+    --fato: #16a34a; --fake: #dc2626; --parcial: #d97706; --inconc: #6b7280; --live: #ef4444;
+    --hl-fato: #ecfdf3; --hl-fake: #fef2f2; --hl-parcial: #fff7e6; --hl-inconc: #f3f4f6;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #0b0d12; --card: #151922; --text: #f3f4f6; --muted: #9ca3af; --line: #262b36; --track: #232836;
-      --fato: #22c55e; --fake: #ef4444; --parcial: #f59e0b;
+      --fato: #22c55e; --fake: #ef4444; --parcial: #f59e0b; --inconc: #9ca3af;
+      --hl-fato: #0f2a1b; --hl-fake: #2d1414; --hl-parcial: #2d2210; --hl-inconc: #1d212b;
     }
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 40px; }
-  header h1 { margin: 0; font-size: 22px; display: flex; align-items: center; gap: 10px; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 24px 16px 40px; }
+  header h1 { margin: 0; font-size: 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .live { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--live); text-transform: uppercase; letter-spacing: .04em; }
   .live::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--live); animation: pulse 1.4s infinite; }
   .live.off { color: var(--muted); } .live.off::before { background: var(--muted); animation: none; }
   @keyframes pulse { 50% { opacity: .25; } }
   .sub { color: var(--muted); margin: 4px 0 0; font-size: 14px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; margin-top: 16px; }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; margin-top: 20px; align-items: start; }
+  aside { position: sticky; top: 16px; }
+  /* min-width 0: sem isso as abas (rolagem lateral) alargam a coluna além da tela */
+  main, aside { min-width: 0; }
+  @media (max-width: 960px) {
+    .layout { grid-template-columns: minmax(0, 1fr); }
+    aside { position: static; order: -1; }
+  }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+  .card + .card { margin-top: 14px; }
+
+  /* estatísticas */
   .total { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-  .total b { font-size: 34px; font-variant-numeric: tabular-nums; }
-  .stack { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: var(--track); margin: 12px 0 4px; }
+  .total b { font-size: 32px; font-variant-numeric: tabular-nums; }
+  .stack { display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: var(--track); margin: 10px 0 4px; }
   .stack span { transition: width .6s; }
-  .cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
-  .cat { border-left: 4px solid; padding: 2px 0 2px 10px; }
-  .cat .n { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .cat .l { font-size: 13px; color: var(--muted); }
-  .cat .p { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
-  h2 { font-size: 16px; margin: 0 0 4px; }
-  .sp + .sp { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+  .cat { border-left: 4px solid; padding: 2px 0 2px 9px; }
+  .cat .n { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .cat .p { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .cat .l { font-size: 12px; color: var(--muted); }
+  .sp + .sp { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
   .sp-head { display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; }
   .sp-head b { color: var(--text); font-size: 15px; }
-  .rows { margin-top: 8px; display: grid; gap: 6px; }
-  .row { display: grid; grid-template-columns: 130px 1fr 92px; align-items: center; gap: 10px; font-size: 14px; }
-  .bar { height: 8px; border-radius: 4px; background: var(--track); overflow: hidden; }
-  .bar span { display: block; height: 100%; transition: width .6s; }
+  .rows { margin-top: 8px; display: grid; gap: 5px; }
+  .row { display: grid; grid-template-columns: 1fr 86px; gap: 2px 10px; align-items: center; font-size: 13px; }
   .row .v { text-align: right; font-variant-numeric: tabular-nums; }
-  footer { margin-top: 20px; color: var(--muted); font-size: 13px; }
-  footer a { color: inherit; }
-  .warn { color: var(--parcial); }
-  @media (max-width: 520px) {
-    .cats { grid-template-columns: 1fr; }
-    .row { grid-template-columns: 1fr 72px; }
-    .row .bar { grid-column: 1 / -1; grid-row: 2; }
+  .bar { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: var(--track); overflow: hidden; }
+  .bar span { display: block; height: 100%; transition: width .6s; }
+  /* celular: as estatísticas vêm antes da lista — por candidato vira uma
+     linha de três números, sem barras, para a lista aparecer logo */
+  @media (max-width: 960px) {
+    .rows { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .row { display: flex; flex-direction: column-reverse; align-items: flex-start; gap: 0; font-size: 12px; color: var(--muted); }
+    .row .v { text-align: left; font-size: 14px; font-weight: 700; color: var(--text); }
+    .row .bar { display: none; }
+    .sp + .sp { margin-top: 10px; padding-top: 10px; }
   }
+  .meta { margin-top: 12px; color: var(--muted); font-size: 12px; }
+  .warn { color: var(--parcial); }
+
+  /* lista */
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 7px; font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; }
+  .chip { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 7px; font-size: 12px; font-weight: 600; background: var(--track); color: var(--text); white-space: nowrap; }
+  .who { width: 26px; height: 26px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 11px; font-weight: 800; color: #fff; flex: none; }
+  .foot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .foot .name { font-size: 13px; color: var(--muted); }
+  blockquote { margin: 0; font-size: 16px; line-height: 1.5; }
+
+  .latest { border: 2px solid; border-radius: 16px; overflow: hidden; margin-bottom: 18px; }
+  .latest .top { padding: 10px 16px; font-weight: 800; font-size: 17px; color: #fff; display: flex; justify-content: space-between; align-items: center; }
+  .latest .top small { font-size: 12px; font-weight: 700; opacity: .9; text-transform: uppercase; letter-spacing: .04em; }
+  .latest .body { padding: 14px 16px 16px; }
+  .latest blockquote { font-size: 18px; font-weight: 500; }
+
+  .tabs { display: flex; border-bottom: 1px solid var(--line); margin-bottom: 14px; overflow-x: auto; scrollbar-width: none; }
+  .tabs button { flex: 1 0 auto; background: none; border: 0; border-bottom: 2px solid transparent; color: var(--muted); font: inherit; font-weight: 700; padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+  .tabs button span { font-weight: 400; margin-left: 6px; }
+  .tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--text); }
+  .list { display: grid; gap: 10px; }
+  .item.new { animation: flash 2.4s ease-out; }
+  @keyframes flash { from { box-shadow: 0 0 0 3px var(--parcial); } to { box-shadow: 0 0 0 0 transparent; } }
+  .empty { color: var(--muted); padding: 20px 4px; }
+
+  footer { margin-top: 24px; color: var(--muted); font-size: 13px; }
+  footer a { color: inherit; }
 </style>
 </head>
 <body>
-<main>
+<div class="wrap">
   <header>
-    <h1>Placar ao vivo <span id="live" class="live off">—</span></h1>
-    <p class="sub" id="title">Carregando…</p>
+    <h1><span id="room">Placar ao vivo</span> <span id="live" class="live off">—</span></h1>
+    <p class="sub" id="topic">Carregando…</p>
   </header>
 
-  <section class="card">
-    <div class="total"><span>Checagens</span><b id="total">—</b></div>
-    <div class="stack" id="stack" aria-hidden="true"></div>
-    <div class="cats" id="cats"></div>
-  </section>
+  <div class="layout">
+    <main>
+      <div id="latest"></div>
+      <nav class="tabs" id="tabs" role="tablist"></nav>
+      <div class="list" id="list"><div class="empty">Carregando checagens…</div></div>
+    </main>
 
-  <section class="card" id="speakers" hidden></section>
+    <aside>
+      <section class="card">
+        <div class="total"><span>Checagens</span><b id="total">—</b></div>
+        <div class="stack" id="stack" aria-hidden="true"></div>
+        <div class="cats" id="cats"></div>
+      </section>
+      <section class="card" id="speakers" hidden></section>
+      <div class="meta" id="meta"></div>
+    </aside>
+  </div>
 
   <footer>
-    <div id="meta"></div>
-    <p>Placar não oficial, montado com os dados públicos do
-      <a id="src" href="https://www.checagemaovivo.org" target="_blank" rel="noopener">checagemaovivo.org</a>,
-      onde estão as checagens completas, as fontes e o aviso sobre o uso de IA. Atualiza sozinho a cada 10 segundos.
-      Checagens inconclusivas ficam fora das porcentagens.</p>
+    Placar não oficial, montado com os dados públicos do
+    <a class="src" href="https://www.checagemaovivo.org" target="_blank" rel="noopener">checagemaovivo.org</a>.
+    A explicação, as fontes e o aviso sobre o uso de IA de cada checagem estão lá.
+    Atualiza sozinho a cada 10 segundos. Checagens inconclusivas aparecem na lista, mas ficam fora das porcentagens.
   </footer>
-</main>
+</div>
 <script>
   const CATS = [
     { key: 'fato', label: 'Fato', color: 'var(--fato)' },
     { key: 'fake', label: 'Fake', color: 'var(--fake)' },
     { key: 'parcial', label: 'Não é bem assim', color: 'var(--parcial)' },
   ];
+  const VERDICT = {
+    verdadeiro: { label: 'Fato', icon: '✓', color: 'var(--fato)', hl: 'var(--hl-fato)' },
+    falso: { label: 'Fake', icon: '✕', color: 'var(--fake)', hl: 'var(--hl-fake)' },
+    parcial: { label: 'Não é bem assim', icon: '±', color: 'var(--parcial)', hl: 'var(--hl-parcial)' },
+    inconclusivo: { label: 'Inconclusivo', icon: '?', color: 'var(--inconc)', hl: 'var(--hl-inconc)' },
+  };
+  const PALETTE = ['#2563eb', '#7c3aed', '#0891b2', '#db2777', '#4b5563'];
+
   const $ = (id) => document.getElementById(id);
   const pct = (n, t) => (t ? (n / t) * 100 : 0);
   const fmt = (n, t) => pct(n, t).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
   const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+  const hhmm = (iso) => (iso ? new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '');
   const sala = new URLSearchParams(location.search).get('sala');
+  const qs = sala ? `?sala=${encodeURIComponent(sala)}` : '';
 
-  function render(d) {
+  let items = [];
+  let version = null;
+  let seen = null; // ids já mostrados — o que chega depois pisca
+  let tab = decodeURIComponent(location.hash.slice(1)) || 'todos';
+  const colors = new Map();
+
+  const initials = (name) => name.split(/\s+/).filter((w) => w.length > 2 || w === name).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
+  const colorOf = (id) => {
+    if (!colors.has(id)) colors.set(id, id === 'falante-nao-identificado' ? '#6b7280' : PALETTE[colors.size % PALETTE.length]);
+    return colors.get(id);
+  };
+  const shortName = (s) => (s.id === 'falante-nao-identificado' ? 'Não identificado' : s.name.split(' ')[0]);
+
+  function foot(c) {
+    const v = VERDICT[c.verdict];
+    return `<div class="foot">
+      <span class="who" style="background:${colorOf(c.speaker.id)}" title="${esc(c.speaker.name)}">${esc(initials(c.speaker.name))}</span>
+      <span class="name">${esc(c.speaker.name)}</span>
+      <span class="badge" style="background:${v.color}">${v.icon} ${v.label}</span>
+      <span class="chip">🕒 ${hhmm(c.at)}</span>
+      <span class="chip">${esc(c.review)}</span>
+    </div>`;
+  }
+
+  function renderList() {
+    // abas: Tudo + um por falante, na ordem de quem tem mais checagens
+    const bySpeaker = new Map();
+    for (const c of items) {
+      const s = bySpeaker.get(c.speaker.id) ?? { ...c.speaker, n: 0 };
+      s.n++;
+      bySpeaker.set(c.speaker.id, s);
+    }
+    const speakers = [...bySpeaker.values()].sort((a, b) => b.n - a.n);
+    if (tab !== 'todos' && !bySpeaker.has(tab)) tab = 'todos';
+    $('tabs').innerHTML = [{ id: 'todos', label: 'Tudo', n: items.length }, ...speakers.map((s) => ({ id: s.id, label: shortName(s), n: s.n }))]
+      .map((t) => `<button role="tab" data-tab="${esc(t.id)}" aria-selected="${t.id === tab}">${esc(t.label)}<span>${t.n}</span></button>`)
+      .join('');
+
+    const latest = items[0];
+    if (latest) {
+      const v = VERDICT[latest.verdict];
+      $('latest').innerHTML = `<article class="latest" style="border-color:${v.color};background:${v.hl}">
+        <div class="top" style="background:${v.color}"><span>${v.icon} ${v.label}</span><small>última checagem</small></div>
+        <div class="body"><blockquote>“${esc(latest.quote)}”</blockquote>${foot(latest)}</div>
+      </article>`;
+    } else {
+      $('latest').innerHTML = '';
+    }
+
+    // a última já está em destaque acima: a lista começa da seguinte
+    const shown = (tab === 'todos' ? items : items.filter((c) => c.speaker.id === tab)).filter((c) => c !== latest);
+    $('list').innerHTML = shown.length
+      ? shown.map((c) => `<article class="card item${seen && !seen.has(c.id) ? ' new' : ''}">
+          <blockquote>“${esc(c.quote)}”</blockquote>${foot(c)}
+        </article>`).join('')
+      : '<div class="empty">Nenhuma checagem ainda.</div>';
+    seen = new Set(items.map((c) => c.id));
+  }
+
+  $('tabs').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-tab]');
+    if (!b) return;
+    tab = b.dataset.tab;
+    history.replaceState(null, '', tab === 'todos' ? location.pathname + location.search : `#${encodeURIComponent(tab)}`);
+    const keep = seen;
+    seen = null; // trocar de aba não é novidade: nada pisca
+    renderList();
+    seen = keep;
+  });
+
+  function renderStats(d) {
     const t = d.totals;
     const live = d.room.status === 'live';
-    $('live').textContent = live ? 'ao vivo' : (d.room.status === 'ended' ? 'encerrado' : (d.room.status ?? '—'));
+    $('room').textContent = d.room.title;
+    $('live').textContent = live ? 'ao vivo' : d.room.status === 'ended' ? 'encerrado' : d.room.status ?? '—';
     $('live').className = 'live' + (live ? '' : ' off');
-    $('title').textContent = [d.room.title, d.room.topic].filter(Boolean).join(' · ');
+    $('topic').textContent = d.room.topic ?? '';
     document.title = `Placar · ${d.room.title}`;
     $('total').textContent = t.total;
     $('stack').innerHTML = CATS.map((c) => `<span style="width:${pct(t[c.key], t.total)}%;background:${c.color}"></span>`).join('');
-    $('cats').innerHTML = CATS.map((c) => `
-      <div class="cat" style="border-color:${c.color}">
-        <div class="n">${t[c.key]}</div>
-        <div class="p" style="color:${c.color}">${fmt(t[c.key], t.total)}</div>
-        <div class="l">${c.label}</div>
+    $('cats').innerHTML = CATS.map((c) => `<div class="cat" style="border-color:${c.color}">
+        <div class="n">${t[c.key]}</div><div class="p" style="color:${c.color}">${fmt(t[c.key], t.total)}</div><div class="l">${c.label}</div>
       </div>`).join('');
     const sp = d.speakers.filter((s) => s.total > 0);
     $('speakers').hidden = !sp.length;
-    $('speakers').innerHTML = sp.map((s) => `
-      <div class="sp">
-        <div class="sp-head"><b>${esc(s.name)}</b><span>${s.total} ${s.total === 1 ? 'checagem' : 'checagens'}</span></div>
-        <div class="rows">${CATS.map((c) => `
-          <div class="row">
-            <span>${c.label}</span>
+    $('speakers').innerHTML = sp.map((s) => `<div class="sp">
+        <div class="sp-head"><b>${esc(s.name)}</b><span>${plural(s.total, 'checagem', 'checagens')}</span></div>
+        <div class="rows">${CATS.map((c) => `<div class="row">
+            <span>${c.label}</span><span class="v">${s[c.key]} · ${fmt(s[c.key], s.total)}</span>
             <div class="bar"><span style="width:${pct(s[c.key], s.total)}%;background:${c.color}"></span></div>
-            <span class="v">${s[c.key]} · ${fmt(s[c.key], s.total)}</span>
-          </div>`).join('')}
-        </div>
+          </div>`).join('')}</div>
       </div>`).join('');
-    $('src').href = d.source;
-    const extra = [`inconclusivas: ${t.inconclusivo}`, `pendentes: ${t.pendente}`];
-    const when = new Date(d.fetchedAt).toLocaleTimeString('pt-BR');
-    $('meta').innerHTML = `${extra.join(' · ')} · atualizado às ${when}` +
+    document.querySelectorAll('a.src').forEach((a) => (a.href = d.source));
+    $('meta').innerHTML = `inconclusivas: ${t.inconclusivo} · pendentes: ${t.pendente} · atualizado às ${new Date(d.fetchedAt).toLocaleTimeString('pt-BR')}` +
       (d.stale ? ` · <span class="warn">fonte fora do ar, mostrando o último placar</span>` : '');
+  }
+
+  async function getJson(path) {
+    const r = await fetch(path + qs, { cache: 'no-store' });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || r.status);
+    return d;
   }
 
   async function tick() {
     try {
-      const r = await fetch('/api/placar' + (sala ? `?sala=${encodeURIComponent(sala)}` : ''), { cache: 'no-store' });
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.error || r.status);
-      render(d);
+      const d = await getJson('/api/placar');
+      renderStats(d);
+      // a lista só é rebaixada quando a fonte publicou algo novo
+      if (d.version !== version || !items.length) {
+        const l = await getJson('/api/checagens');
+        items = l.items;
+        version = d.version;
+        renderList();
+      }
     } catch (e) {
       $('meta').innerHTML = `<span class="warn">Não consegui atualizar agora (${esc(e.message)}). Tentando de novo…</span>`;
     }
